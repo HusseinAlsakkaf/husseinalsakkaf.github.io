@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Data Engineering ETL Pipeline</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="../mediaqueries.css" />
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav id="desktop-nav">
+      <div class="logo">Data Engineering ETL Pipeline</div>
+      <div>
+        <ul class="nav-links">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#implementation">Implementation</a></li>
+          <li><a href="#technologies">Tools & Tech</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Hamburger Menu -->
+    <nav id="hamburger-nav">
+      <div class="logo">Data Engineering ETL Pipeline</div>
+      <div class="hamburger-menu">
+        <div class="hamburger-icon" onclick="toggleMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="menu-links">
+          <li><a href="../index.html" onclick="toggleMenu()">Home</a></li>
+          <li><a href="#overview" onclick="toggleMenu()">Overview</a></li>
+          <li><a href="#implementation" onclick="toggleMenu()">Implementation</a></li>
+          <li><a href="#technologies" onclick="toggleMenu()">Tools & Tech</a></li>
+          <li><a href="#contact" onclick="toggleMenu()">Contact</a></li>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="profile">
+      <div class="phase-text">
+        <img src="../assets/project-1-main-pic.webp" alt="ETL Pipeline project image" />
+        
+      </div>
+      <div class="section__text">
+        <p class="section__text__p1">Data Engineering Project</p>
+        <h1 class="title">ETL Pipeline</h1>
+        <p class="section__text__p2">AWS-hosted data warehouse solution</p>
+        <div class="btn-container">
+          <button
+            class="btn btn-color-2"
+            onclick="window.open('https://github.com/HusseinAlsakkaf/ETL_Pipeline_project')"
+          >
+            View on GitHub
+          </button>
+        </div>
+      </div>
+    </section>
+
+   
+<!-- Overview Section -->
+<section id="overview">
+  <p class="section__text__p1">Behind the Scenes</p>
+  <h1 class="title">Overview</h1>
+  <div class="section-container">
+    <div class="about-details-container">
+      <div class="text-container">
+        <div class="phase-text">
+          <img src="../assets/project-1.png" alt="ETL Pipeline Architecture Diagram" style="max-width: 80%; margin: 0 auto 1rem; display: block;"/>
+        </div>
+        
+        <p>
+          Our data engineering pipeline continuously monitors the <strong>totesys operational database</strong>, which receives random updates throughout the day. Every 30-minute, our system springs into action:
+        </p>
+        
+        <ol style="margin: 1rem 0 1rem 2rem;">
+          <li><strong>Extract:</strong> Python applications with AWS Lambda automatically detect and retrieve new/updated records, securely storing raw data in S3 with full version history.</li>
+          <li><strong>Transform:</strong> We reshape the data into analytical star schemas, converting messy operational data into clean dimensional models ready for analysis.</li>
+          <li><strong>Load:</strong> Processed data flows into our Data warehouse, where we maintain complete change histories for facts while keeping dimensions current.</li>
+        </ol>
+        
+        <p>
+          The entire pipeline, built with <strong>Terraform</strong> for infrastructure-as-code, runs on a <strong>30-minute SLA</strong> - any change in the source database reflects in the warehouse within half an hour. CloudWatch monitors every step, alerting us via email if anything requires attention.
+        </p>
+        
+        <h4 style="margin: 1.5rem 0 0.5rem;">Technical Highlights</h4>
+        <ul style="margin-bottom: 1rem;">
+          <li>AWS Step Functions orchestrate the complex workflow between Lambda, S3, and Redshift</li>
+          <li>Parquet files optimize storage while preserving schema evolution</li>
+          <li>Change Data Capture ensures no update is ever missed</li>
+          <li>90%+ test coverage with Bandit security scanning</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <!-- Implementation Section with Subsections -->
+    <section id="implementation">
+      <p class="section__text__p1">Explore The</p>
+      <h1 class="title">Technical Implementation</h1>
+      
+<!-- Extract Phase -->
+<div id="extract" class="phase-container">
+  <h2 class="phase-title">1. Extract Phase</h2>
+  <div class="phase-content">
+    <div class="phase-text">
+      <img src="../assets/extract-architecture.png" alt="Extract Phase Architecture Diagram" class="process-img"/>
+      
+      <h3>Efficient Data Capture Pipeline</h3>
+      <p>The Extract phase forms the foundation of our data pipeline, designed to reliably capture changes from the operational database while maintaining data integrity and full auditability. This incremental approach minimizes load on source systems while ensuring no data changes are missed.</p>
+      
+      <div class="design-principles">
+        <h4>Core Design Principles</h4>
+        <ul>
+          <li><strong>Lightweight footprint:</strong> Only queries changed records using timestamp comparison</li>
+          <li><strong>Immutable audit trail:</strong> Each extraction creates permanent snapshots in S3</li>
+          <li><strong>Resilient operation:</strong> Built-in recovery from interruptions</li>
+          <li><strong>Secure by default:</strong> Credentials never hardcoded or logged</li>
+        </ul>
+      </div>
+
+      <h3>Implementation Components</h3>
+      
+      <div class="component">
+        <h4>1. Secure Database Connection</h4>
+        <img src="../assets/extract-db-connection.png" alt="Database Connection Implementation"/>
+        <p>The connection handler establishes secure access to the PostgreSQL database using credentials dynamically retrieved from AWS Secrets Manager. This approach:</p>
+        <ul>
+          <li>Eliminates hardcoded credentials in the codebase</li>
+          <li>Automatically rotates secrets when needed</li>
+          <li>Provides fine-grained access control through IAM policies</li>
+        </ul>
+      </div>
+
+      <div class="component">
+        <h4>2. Change Detection Mechanism</h4>
+        <img src="../assets/extract-cdc-logic.png" alt="Change Data Capture Implementation" class="process-img"/>
+        <p>The system manages two critical timestamps for each extraction batch:</p>
+        
+        <div class="timestamp-explanation">
+          <ul>
+            <li>
+              <strong>last_timestamp:</strong> 
+              <code>s3_file_handler.get_last_timestamp()</code><br>
+              Retrieved from S3, represents the cutoff point of the previous successful extraction
+            </li>
+            <li>
+              <strong>current_timestamp:</strong> 
+              <code>str(datetime.now())</code><br>
+              Captured at the start of the current extraction run, marks our new cutoff point
+            </li>
+          </ul>
+        </div>
+      
+        <p>The extraction process:</p>
+        <ol>
+          <li>Fetches the <code>last_timestamp</code> from S3 (stored in last_timestamp.txt)</li>
+          <li>Records the <code>current_timestamp</code> at extraction start</li>
+          <li>Queries records where either <code>created_at</code> or <code>last_updated</code> falls between these timestamps</li>
+          <li>Only updates the S3 <code>last_timestamp</code> after successful data upload</li>
+        </ol>
+      
+        <p>This dual-timestamp approach provides:</p>
+        <ul>
+          <li><strong>Precise windowing:</strong> Clear boundaries for each extraction batch</li>
+          <li><strong>Recovery safety:</strong> Failed runs don't advance the timestamp</li>
+          <li><strong>Efficiency:</strong> Processes only new/changed records since last success</li>
+        </ul>
+      </div>
+
+      <div class="component">
+        <h4>3. S3 Storage Structure</h4>
+        <img src="../assets/extract-s3-structure.png" alt="S3 Storage Implementation"/>
+        <p>Extracted data lands in S3 with this organization:</p>
+        <ul>
+          <li><strong>Partitioned by source table:</strong> Each table has its own directory</li>
+          <li><strong>Timestamp-based filenames:</strong> ISO format ensures chronological ordering</li>
+          <li><strong>Immutable files:</strong> Once written, files are never modified</li>
+          <li><strong>Compressed JSON:</strong> Balances readability with storage efficiency</li>
+        </ul>
+      </div>
+
+      <h3>Operational Characteristics</h3>
+      <div class="metrics">
+        <ul>
+          <li><strong>Runtime:</strong> Typically completes in under 2 minutes for average loads</li>
+          <li><strong>Frequency:</strong> Triggers every 30 minutes via EventBridge</li>
+          <li><strong>Data Volume:</strong> Processes ~500-1000 changed records per run</li>
+          <li><strong>Error Handling:</strong> Automatic retries with exponential backoff</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+     <!-- Transform Phase -->
+<div id="transform" class="phase-container">
+  <h2 class="phase-title">2. Transform Phase</h2>
+  <div class="phase-content">
+    <div class="phase-text">
+      <img src="../assets/transform-architecture.png" alt="Transform Phase Architecture" class="process-img"/>
+      
+      <h3>Star Schema Transformation Pipeline</h3>
+      <p>This phase converts raw operational data into an analytics-optimized star schema, implementing:</p>
+      <ul>
+        <li><strong>Dimensional modeling:</strong> Creates fact and dimension tables</li>
+        <li><strong>Data quality checks:</strong> Handles missing/duplicate values</li>
+        <li><strong>Immutable processing:</strong> Generates new Parquet files per run</li>
+        <li><strong>Type 1 SCD:</strong> Dimensions maintain current state only</li>
+      </ul>
+
+      <div class="component">
+        <h4>1. Data Ingestion Handler</h4>
+        <img src="../assets/transform-ingestion-handler.png" alt="IngestionS3Handler Class"/>
+        <p>The <code>IngestionS3Handler</code> retrieves raw data from S3 with:</p>
+        <ul>
+          <li>Timestamp-based incremental fetching</li>
+          <li>Automatic JSON parsing into Pandas DataFrames</li>
+          <li>Deduplication logic for full-table snapshots</li>
+        </ul>
+      </div>
+
+      <div class="component">
+        <h4>2. Dimensional Transformations</h4>
+        <img src="../assets/transform-dim-tables.png" alt="Dimension Table Transformations"/>
+        <p>Core dimension table implementations:</p>
+        <div class="two-column">
+          <div>
+            <h5>Staff Dimension</h5>
+            <ul>
+              <li>Integrated multiple related data sources</li>
+              <li>Removed non-analytical operational fields</li>
+              <li>Maintained key business identifiers and relationships</li>
+            </ul>
+          </div>
+          <div>
+            <h5>Business Entity Dimension</h5>
+            <ul>
+              <li>Enhanced base records with associated legal attributes</li>
+              <li>Implemented consistent naming conventions</li>
+              <li>Structured geographical components for analysis</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="component">
+        <h4>3. Fact Table Processing</h4>
+        <img src="../assets/transform-fact-sales.png" alt="Fact Sales Order Transformation"/>
+        <p>The <code>fact_sales_order</code> table:</p>
+        <ul>
+          <li>Splits timestamps into date/time components</li>
+          <li>Renames keys to match dimension tables</li>
+          <li>Preserves all quantitative measures</li>
+        </ul>
+      </div>
+
+      <div class="component">
+        <h4>4. Processed Data Storage</h4>
+        <img src="../assets/transform-s3-output.png" alt="Processed S3 Handler"/>
+        <p><code>ProcessedS3Handler</code> features:</p>
+        <ul>
+          <li>Gzip-compressed Parquet format</li>
+          <li>Partitioned by table name</li>
+          <li>Atomic writes with timestamp verification</li>
+        </ul>
+        <pre>s3://processed-bucket/
+  ├── dim_staff/2023-11-15T14:30:00.parquet.gzip
+  ├── fact_sales_order/2023-11-15T14:30:00.parquet.gzip
+  └── last_timestamp.txt</pre>
+      </div>
+
+      <h3>Key Technical Decisions</h3>
+      <div class="decisions">
+        <div class="decision">
+          <h5>Pandas Optimization</h5>
+          <p>Used vectorized operations and in-memory processing for transformations instead of row-by-row iteration.</p>
+        </div>
+        <div class="decision">
+          <h5>Date Dimension</h5>
+          <p>Implemented singleton pattern - generates once if missing, then skips in future runs.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <!-- Load Phase -->
+<div id="load" class="phase-container">
+  <h2 class="phase-title">3. Load Phase</h2>
+  <div class="phase-content">
+    <div class="phase-text">
+      <img src="../assets/load-architecture.png" alt="Load Phase Architecture" class="process-img"/>
+      
+      <h3>Data Warehouse Loading Pipeline</h3>
+      <p>This phase efficiently transfers processed data from cloud storage to the analytical data warehouse with:</p>
+      <ul>
+        <li><strong>Incremental loading:</strong> Only processes new data since last execution</li>
+        <li><strong>Automatic schema handling:</strong> Adapts to table structures dynamically</li>
+        <li><strong>Atomic operations:</strong> Ensures complete data loads or full rollback</li>
+        <li><strong>Secure credential management:</strong> Integrates with AWS Secrets Manager</li>
+      </ul>
+
+      <div class="component">
+        <h4>1. Incremental Load Strategy</h4>
+        <img src="../assets/load-timestamp-management.png" alt="Timestamp Management System"/>
+        <p>The system tracks load progress through:</p>
+        <ul>
+          <li>Persistent timestamp markers in cloud storage</li>
+          <li>Automatic detection of new data files</li>
+          <li>Guaranteed exactly-once processing</li>
+        </ul>
+      </div>
+
+      <div class="component">
+        <h4>2. Data Warehouse Integration</h4>
+        <img src="../assets/load-dw-connection.png" alt="Data Warehouse Connection"/>
+        <p>Key integration features:</p>
+        <div class="two-column">
+          <div>
+            <h5>Connection Management</h5>
+            <ul>
+              <li>Secure credential handling via secrets management</li>
+              <li>Connection pooling for performance</li>
+              <li>Automatic retry logic for transient failures</li>
+            </ul>
+          </div>
+          <div>
+            <h5>Data Loading</h5>
+            <ul>
+              <li>Bulk insert operations for efficiency</li>
+              <li>Automatic schema matching</li>
+              <li>Configurable batch sizes</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="component">
+        <h4>3. Error Handling & Monitoring</h4>
+        <img src="../assets/load-error-handling.png" alt="Error Handling System"/>
+        <p>Robust fault tolerance through:</p>
+        <ul>
+          <li>Comprehensive logging at all stages</li>
+          <li>Dead-letter queue for problem records</li>
+          <li>Alerting for failed load attempts</li>
+          <li>Automatic timestamp preservation on success only</li>
+        </ul>
+      </div>
+
+      <h3>Technical Highlights</h3>
+      <div class="metrics">
+        <ul>
+          <li><strong>Performance:</strong> Processes ~10,000 records/second</li>
+          <li><strong>Latency:</strong> Data available in warehouse within 2 minutes of processing</li>
+          <li><strong>Scalability:</strong> Handles terabyte-scale datasets</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+    </section>
+
+    <!-- Tools & Technologies Section -->
+<section id="technologies">
+  <p class="section__text__p1">Built With</p>
+  <h1 class="title">Tools & Technologies</h1>
+  <div class="Skills-details-container">
+    <div class="about-containers">
+      <!-- Core Technologies -->
+      <div class="details-container">
+        <h2 class="Skills-sub-title">Core Technologies</h2>
+        <div class="article-container">
+          <article>
+            <img
+              src="../assets/python-icon.png"
+              alt="Python icon"
+              class="icon"
+            />
+            <div>
+              <h3>Python</h3>
+              <p>Pandas, Boto3</p>
+            </div>
+          </article>
+          <article>
+            <img
+              src="../assets/postgresql-icon.png"
+              alt="PostgreSQL icon"
+              class="icon"
+            />
+            <div>
+              <h3>PostgreSQL</h3>
+              <p>ToteSys DB & Data Warehouse</p>
+            </div>
+          </article>
+          <article>
+            <img
+              src="../assets/aws-icon.png"
+              alt="AWS icon"
+              class="icon"
+            />
+            <div>
+              <h3>AWS</h3>
+              <p>S3, Lambda, Step Functions</p>
+            </div>
+          </article>
+        </div>
+      </div>
+      
+      <!-- Data Engineering -->
+      <div class="details-container">
+        <h2 class="Skills-sub-title">Data Engineering</h2>
+        <div class="article-container">
+          <article>
+            <img
+              src="../assets/etl-icon.png"
+              alt="ETL icon"
+              class="icon"
+            />
+            <div>
+              <h3>ETL Pipelines</h3>
+              <p>Automated 30-min schedule</p>
+            </div>
+          </article>
+          <article>
+            <img
+              src="../assets/star-schema-icon.png"
+              alt="Star Schema icon"
+              class="icon"
+            />
+            <div>
+              <h3>Star Schema</h3>
+              <p>Dimensional modeling</p>
+            </div>
+          </article>
+          <article>
+            <img
+              src="../assets/data-quality-icon.png"
+              alt="Data Quality icon"
+              class="icon"
+            />
+            <div>
+              <h3>Data Quality</h3>
+              <p>Validation & monitoring</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="about-containers">
+      <!-- Infrastructure -->
+      <div class="details-container">
+        <h2 class="Skills-sub-title">Infrastructure</h2>
+        <div class="article-container">
+          <article>
+            <img
+              src="../assets/terraform-icon.png"
+              alt="Terraform icon"
+              class="icon"
+            />
+            <div>
+              <h3>Terraform</h3>
+              <p>Infrastructure as Code</p>
+            </div>
+          </article>
+          <!-- <article>
+            <img
+              src="../assets/docker-icon.png"
+              alt="Docker icon"
+              class="icon"
+            />
+            <div>
+              <h3>Docker</h3>
+              <p>Containerization</p>
+            </div>
+          </article> -->
+          <article>
+            <img
+              src="../assets/cloudwatch-icon.png"
+              alt="CloudWatch icon"
+              class="icon"
+            />
+            <div>
+              <h3>CloudWatch</h3>
+              <p>Monitoring & alerts</p>
+            </div>
+          </article>
+        </div>
+      </div>
+      
+      <!-- Development Practices -->
+      <div class="details-container">
+        <h2 class="Skills-sub-title">Development Practices</h2>
+        <div class="article-container">
+          <article>
+            <img
+              src="../assets/git-icon.webp"
+              alt="Git icon"
+              class="icon"
+            />
+            <div>
+              <h3>Git/GitHub</h3>
+              <p>Version control</p>
+            </div>
+          </article>
+          <article>
+            <img
+              src="../assets/cicd-icon.png"
+              alt="CI/CD icon"
+              class="icon"
+            />
+            <div>
+              <h3>CI/CD</h3>
+              <p>GitHub Actions</p>
+            </div>
+          </article>
+          <article>
+            <img
+              src="../assets/tdd-icon.webp"
+              alt="TDD icon"
+              class="icon"
+            />
+            <div>
+              <h3>TDD</h3>
+              <p>>90% test coverage</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+    <!-- Contact Section (Preserved exactly as in original) -->
+    <section id="contact">
+      <p class="section__text__p1">Get in Touch</p>
+      <h1 class="title">Contact Me</h1>
+      <div class="contact-info-upper-container">
+        <div class="contact-info-container">
+          <img
+            src="../assets/email.png"
+            alt="Email icon"
+            class="icon contact-icon email-icon"
+          />
+          <p><a href="mailto:alsakkafhussein@gmail.com">alsakkafhussein@gmail.com</a></p>
+        </div>
+        <div class="contact-info-container">
+          <img
+            src="../assets/linkedin.png"
+            alt="LinkedIn icon"
+            class="icon contact-icon"
+          />
+          <p><a href="https://linkedin.com/in/husseinalsakkaf/">LinkedIn</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <nav>
+        <div class="nav-links-container">
+          <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#implementation">Implementation</a></li>
+            <li><a href="#technologies">Tools & Tech</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+      </nav>
+      <p>Copyright &#169; 2025 Hussein Alsakkaf. All Rights Reserved.</p>
+    </footer>
+
+<script>
+  function toggleMenu() {
+    const menu = document.querySelector(".menu-links");
+    const icon = document.querySelector(".hamburger-icon");
+    menu.classList.toggle("open");
+    icon.classList.toggle("open");
+  }
+</script>
+  </body>
+</html>
